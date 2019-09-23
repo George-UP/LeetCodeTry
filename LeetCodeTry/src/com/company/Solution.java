@@ -30,26 +30,25 @@ public class Solution {
      * 例如，当字符串为We Are Happy.则经过替换之后的字符串为We%20Are%20Happy
      */
     public String replaceSpace(StringBuffer str) {
-        return str.toString().replaceAll(" ", "%20");
-//        List<String> temp = new ArrayList<>();
-//        String tem = "";
-//        int num = 0;
-//        while (num<str.length()){
-//            if (str.charAt(num) != ' '){
-//                tem += str.charAt(num);
-//            }
-//            else {
-//                temp.add(tem);
-//                tem = "";
-//            }
-//            num ++;
-//        }
-//        temp.add(tem);
-//        String result = temp.get(0);
-//        for (int i = 1;i<temp.size();i++){
-//            result += "%20" + temp.get(i);
-//        }
-//        return result;
+//        return str.toString().replaceAll(" ", "%20");
+        List<String> temp = new ArrayList<>();
+        String tem = "";
+        int num = 0;
+        while (num < str.length()) {
+            if (str.charAt(num) != ' ') {
+                tem += str.charAt(num);
+            } else {
+                temp.add(tem);
+                tem = "";
+            }
+            num++;
+        }
+        temp.add(tem);
+        String result = temp.get(0);
+        for (int i = 1; i < temp.size(); i++) {
+            result += "%20" + temp.get(i);
+        }
+        return result;
     }
 
 
@@ -114,22 +113,16 @@ public class Solution {
     Stack<Integer> stack2 = new Stack<Integer>();
 
     public void push(int node) {
-//        while (!stack2.isEmpty()){
-//            stack1.push(stack2.pop());
-//        }
-//        stack1.push(node);
-//        while (!stack1.isEmpty()){
-//            stack2.push(stack1.pop());
-//        }
+        while (!stack2.isEmpty()) {
+            stack1.push(stack2.pop());
+        }
         stack1.push(node);
+        while (!stack1.isEmpty()) {
+            stack2.push(stack1.pop());
+        }
     }
 
     public int pop() {
-        if (stack2.isEmpty()) {
-            while (!stack1.isEmpty()) {
-                stack2.push(stack1.pop());
-            }
-        }
         return stack2.pop();
     }
 
@@ -199,12 +192,12 @@ public class Solution {
     }
 
     public int[] twoSum(int[] nums, int target) {
-        Map<Integer,Integer> map = new HashMap<>();
+        Map<Integer, Integer> map = new HashMap<>();
         for (int i = 0; i < nums.length; i++) {
             int temp = target - nums[i];
-            if(map.containsKey(temp))
-                return new int[]{i,map.get(temp)};
-            map.put(nums[i],i);
+            if (map.containsKey(temp))
+                return new int[]{i, map.get(temp)};
+            map.put(nums[i], i);
         }
         throw new IllegalArgumentException("No two sum solution");
     }
@@ -214,30 +207,55 @@ public class Solution {
      * 字符串 text 中的每个字母最多只能被使用一次。请你返回最多可以拼凑出多少个单词 "balloon"。
      */
     public int maxNumberOfBalloons(String text) {
-        if (text.length()<7) {
+        if (text.length() < 7) {
             return 0;
         }
-        int[] check = {0,0,0,0,0};//b,a,l,o,n
+        int[] check = {0, 0, 0, 0, 0};//b,a,l,o,n
         for (int i = 0; i < text.length(); i++) {
-            switch (text.charAt(i)){
-                case 'b': check[0]++;break;
-                case 'a': check[1]++;break;
-                case 'l': check[2]++;break;
-                case 'o': check[3]++;break;
-                case 'n': check[4]++;break;
+            switch (text.charAt(i)) {
+                case 'b':
+                    check[0]++;
+                    break;
+                case 'a':
+                    check[1]++;
+                    break;
+                case 'l':
+                    check[2]++;
+                    break;
+                case 'o':
+                    check[3]++;
+                    break;
+                case 'n':
+                    check[4]++;
+                    break;
             }
         }
         check[2] /= 2;
         check[3] /= 2;
         int count = check[0];
         for (int i = 1; i < 5; i++) {
-            count = Math.min(count,check[i]);
+            count = Math.min(count, check[i]);
         }
         return count;
     }
 
+    /*一只青蛙一次可以跳上1级台阶，也可以跳上2级……它也可以跳上n级。求该青蛙跳上一个n级的台阶总共有多少种跳法*/
+    //f(n) = f(n - 1) + f(n - 2) + f(n - 3) + ... + f(3) + f(2) + f(1) = 2 ^ (n - 1)
+    //f(n) = 2f(n - 1)
+    public int JumpFloorII(int target) {
+//        return (int) Math.pow(2,target-1);
+        int result = 1;
+        while (--target>0){
+            result *= 2;
+        }
+        return result;
+    }
 
+    /* 我们可以用2*1的小矩形横着或者竖着去覆盖更大的矩形。
+     * 请问用n个2*1的小矩形无重叠地覆盖一个2*n的大矩形，总共有多少种方法？
+     */
+    public int RectCover(int target) {
 
-
+    }
 
 }
