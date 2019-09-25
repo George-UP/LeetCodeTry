@@ -4,6 +4,7 @@ import java.util.*;
 
 public class Solution {
 
+    //二维数组中的查找
     /*
      * 在一个二维数组中（每个一维数组的长度相同），每一行都按照从
      * 左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请
@@ -26,6 +27,7 @@ public class Solution {
         return false;
     }
 
+    //替换空格
     /* 请实现一个函数，将一个字符串中的每个空格替换成“%20”。
      * 例如，当字符串为We Are Happy.则经过替换之后的字符串为We%20Are%20Happy
      */
@@ -52,6 +54,7 @@ public class Solution {
     }
 
 
+    从尾到头打印链表
     /*输入一个链表，按链表从尾到头的顺序返回一个ArrayList。*/
     public class ListNode {
         int val;
@@ -71,6 +74,7 @@ public class Solution {
         return result;
     }
 
+    //重建二叉树
     /* 输入某二叉树的前序遍历和中序遍历的结果，请重建出该二叉树。
      * 假设输入的前序遍历和中序遍历的结果中都不含重复的数字。
      * 例如输入前序遍历序列{1,2,4,7,3,5,6,8}和中序遍历序列{4,7,2,1,5,3,8,6}，
@@ -108,6 +112,7 @@ public class Solution {
     }
 
 
+    //用两个栈实现队列
     /*用两个栈来实现一个队列，完成队列的Push和Pop操作。 队列中的元素为int类型。*/
     Stack<Integer> stack1 = new Stack<Integer>();
     Stack<Integer> stack2 = new Stack<Integer>();
@@ -126,6 +131,7 @@ public class Solution {
         return stack2.pop();
     }
 
+    //旋转数组的最小数字
     /* 把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。
      * 输入一个非递减排序的数组的一个旋转，输出旋转数组的最小元素。
      * 例如数组{3,4,5,1,2}为{1,2,3,4,5}的一个旋转，该数组的最小值为1。
@@ -148,11 +154,11 @@ public class Solution {
         return result;
     }
 
+    //斐波那契数列：0，1，1，2，3，5，8，13，。。。。==> dp(n) = dp(n - 1) + dp(n - 2)
     /* 大家都知道斐波那契数列，现在要求输入一个整数n，
      * 请你输出斐波那契数列的第n项（从0开始，第0项为0）。
      * n<=39
      */
-    //斐波那契数列：0，1，1，2，3，5，8，13，。。。。-->dp(n) = dp(n - 1) + dp(n - 2)
     public int Fibonacci(int n) {
         //O(2^n) O(1)
         /*
@@ -179,6 +185,7 @@ public class Solution {
         return a;
     }
 
+    //跳台阶
     /*一只青蛙一次可以跳上1级台阶，也可以跳上2级。求该青蛙跳上一个n级的台阶总共有多少种跳法（先后次序不同算不同的结果）。*/
     //与斐波那契数列相似，不同的是第0 项为1
     public int JumpFloor(int target) {
@@ -239,6 +246,7 @@ public class Solution {
         return count;
     }
 
+    //变态跳台阶
     /*一只青蛙一次可以跳上1级台阶，也可以跳上2级……它也可以跳上n级。求该青蛙跳上一个n级的台阶总共有多少种跳法*/
     //f(n) = f(n - 1) + f(n - 2) + f(n - 3) + ... + f(3) + f(2) + f(1) = 2 ^ (n - 1)
     //f(n) = 2f(n - 1)
@@ -251,11 +259,44 @@ public class Solution {
         return result;
     }
 
+    //矩形覆盖
     /* 我们可以用2*1的小矩形横着或者竖着去覆盖更大的矩形。
      * 请问用n个2*1的小矩形无重叠地覆盖一个2*n的大矩形，总共有多少种方法？
      */
+    //同跳台阶，只是0的时候应该返回0，数列为：0，1，2，3，5，8，13，。。。。。
     public int RectCover(int target) {
+        if(target < 4)
+            return target;
+        int a = 1;
+        int b = 1;
+        while (target-- > 0) {
+            b += a;
+            a = b - a;
+        }
+        return a;
+    }
 
+    //二进制中1的个数
+    /*输入一个整数，输出该数二进制表示中1的个数。其中负数用补码表示。*/
+    /* 解答：在机器中，整数都是以二进制补码的形式存在的，运算也是，n & (n - 1)是个小技巧，实际上相当把最右边的1 置换成0
+     * 比如 7 = 0111,循环为：
+     * result = 1,n = 0111 & 0110 = 0110;
+     * result = 2,n = 0110 & 0101 = 0100;
+     * result = 3,n = 0100 & 0011 = 0000;
+     * 比如 -7 = 1111，循环为：
+     * result = 1,n = 1111 & 1110 = 1110;
+     * result = 2,n = 1110 & 1101 = 1100;
+     * result = 3,n = 1100 & 1011 = 1000;
+     * result = 4,n = 1000 & 0111 = 0000;
+     */
+    public int NumberOf1(int n) {
+        int result = 0;
+        n = n & 0xffffffff;
+        while(n != 0){
+            result ++;
+            n = n & (n - 1);
+        }
+        return result;
     }
 
 }
