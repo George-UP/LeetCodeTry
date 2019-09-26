@@ -54,9 +54,9 @@ public class Solution {
     }
 
 
-    从尾到头打印链表
+    //从尾到头打印链表
     /*输入一个链表，按链表从尾到头的顺序返回一个ArrayList。*/
-    public class ListNode {
+    public static class ListNode {
         int val;
         ListNode next = null;
 
@@ -253,7 +253,7 @@ public class Solution {
     public int JumpFloorII(int target) {
 //        return (int) Math.pow(2,target-1);
         int result = 1;
-        while (--target>0){
+        while (--target > 0) {
             result *= 2;
         }
         return result;
@@ -265,7 +265,7 @@ public class Solution {
      */
     //同跳台阶，只是0的时候应该返回0，数列为：0，1，2，3，5，8，13，。。。。。
     public int RectCover(int target) {
-        if(target < 4)
+        if (target < 4)
             return target;
         int a = 1;
         int b = 1;
@@ -279,24 +279,151 @@ public class Solution {
     //二进制中1的个数
     /*输入一个整数，输出该数二进制表示中1的个数。其中负数用补码表示。*/
     /* 解答：在机器中，整数都是以二进制补码的形式存在的，运算也是，n & (n - 1)是个小技巧，实际上相当把最右边的1 置换成0
-     * 比如 7 = 0111,循环为：
-     * result = 1,n = 0111 & 0110 = 0110;
-     * result = 2,n = 0110 & 0101 = 0100;
-     * result = 3,n = 0100 & 0011 = 0000;
-     * 比如 -7 = 1111，循环为：
-     * result = 1,n = 1111 & 1110 = 1110;
-     * result = 2,n = 1110 & 1101 = 1100;
-     * result = 3,n = 1100 & 1011 = 1000;
-     * result = 4,n = 1000 & 0111 = 0000;
+     * 比如 7 = 00000 0111,循环为：（8位为例，实际上计算机中是32位）
+     * result = 1,n = 0000 0111 & 0000 0110 = 0000 0110;
+     * result = 2,n = 0000 0110 & 0000 0101 = 0000 0100;
+     * result = 3,n = 0000 0100 & 0000 0011 = 0000 0000;
+     * 比如 -7 = 1111 1001，循环为：（8位为例，实际上计算机中是32位）
+     * result = 1,n = 1111 1001 & 1111 1000 = 1111 1000;
+     * result = 2,n = 1111 1000 & 1111 0111 = 1111 0000;
+     * result = 3,n = 1111 0000 & 1110 1111 = 1110 0000;
+     * result = 4,n = 1110 0000 & 1101 1111 = 1100 0000;
+     * result = 5,n = 1100 0000 & 1011 1111 = 1000 0000;
+     * result = 6,n = 1000 0000 & 0111 1111 = 0000 0000;
      */
     public int NumberOf1(int n) {
         int result = 0;
         n = n & 0xffffffff;
-        while(n != 0){
-            result ++;
+        while (n != 0) {
+            result++;
             n = n & (n - 1);
         }
         return result;
     }
 
+    //数值的整数次方
+    /* 给定一个double类型的浮点数base和int类型的整数exponent。求base的exponent次方。
+     * 保证base和exponent不同时为0
+     */
+    public double Power(double base, int exponent) {
+        if (base == 0) {
+            return 0;
+        }
+        if (exponent == 0) {
+            return 1;
+        }
+        double a = 1, b = base;
+        int num = exponent;
+        exponent = Math.abs(exponent);
+        while (exponent > 1) {
+            if (exponent % 2 == 1) {
+                a *= b;
+                exponent--;
+            } else {
+                b *= b;
+                exponent /= 2;
+            }
+        }
+        if (num > 0) {
+            return a * b;
+        }
+        return 1 / (a * b);
+    }
+
+    //调整数组顺序使奇数位于偶数前面
+    /* 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，
+     * 使得所有的奇数位于数组的前半部分，所有的偶数位于数组的后
+     * 半部分，并保证奇数和奇数，偶数和偶数之间的相对位置不变。
+     */
+    /*方法一：把奇偶数分别放两个List，最后放回array中
+     * 方法二：扫描一遍，用i，j两个指针指向同一个值，从array[0]开始找，
+     * 每当i找到偶数时，j开始往后找i以后的第一个奇数，然后i到j这一段后移一位，
+     * 奇数放到i处，i++，当j++到num = array.length时，直接break无需再后移
+     */
+    public void reOrderArray(int[] array) {
+//        int num = array.length;
+//        List<Integer> oid = new ArrayList<>();
+//        List<Integer> notOid = new ArrayList<>();
+//        int i = 0;
+//        while (i < num){
+//            if (array[i] % 2 == 0){
+//                notOid.add(array[i]);
+//            }else {
+//                oid.add(array[i]);
+//            }
+//            i++;
+//        }
+//        i = 0;
+//        int j = 0;
+//        for (;i < oid.size();i++)
+//        {
+//            array[i] = oid.get(i);
+//        }
+//        for (;j < notOid.size();j++){
+//            array[i + j] = notOid.get(j);
+//        }
+        int num = array.length;
+        int i = 0, j = 0, temp;
+        while (i < num && j < num) {
+            if (array[i] % 2 == 0) {
+                j = i;
+                while (j < num) {
+                    if (array[j] % 2 == 0) {
+                        j++;
+                    } else {
+                        break;
+                    }
+                }
+                if(j == num){
+                    return;
+                }
+                temp = array[j];
+                while (i < j) {
+                    array[j] = array[j - 1];
+                    j--;
+                }
+                array[i] = temp;
+            }
+            i++;
+        }
+    }
+
+    //链表中倒数第k个结点
+    /*输入一个链表，输出该链表中倒数第k个结点。*/
+    /*
+     * 方法一：遍历查出链表长度，返回count - k
+     * 方法二：用快慢指针————i，j，j先走k - 1，然后i和j一起走，j走到末尾时，返回j
+     */
+    public ListNode FindKthToTail(ListNode head,int k) {
+//        ListNode findk = head;
+//        int count = 0;
+//        while (null != findk){
+//            findk = findk.next;
+//            count ++;
+//        }
+//        if(count < k)
+//            return null;
+//        for (int i = 0; i < count - k; i++) {
+//            head = head.next;
+//        }
+//        return head;
+        ListNode i = head;
+        ListNode j = head;
+        int count = 0;
+        while (null != j){
+            j = j.next;
+            count ++;
+            if (count > k)
+                i = i.next;
+        }
+        if (k > count)
+            return null;
+        return i;
+    }
+
+    //反转链表
+    /*输入一个链表，反转链表后，输出新链表的表头*/
+    public ListNode ReverseList(ListNode head) {
+
+    }
 }
