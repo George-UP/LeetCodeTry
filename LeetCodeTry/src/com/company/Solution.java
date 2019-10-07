@@ -650,21 +650,21 @@ public class Solution {
         int middle = length - 1;
         boolean ifsmall = false;
         for (int i = middle; i >= 0; i--) {
-            if(!ifsmall){
+            if (!ifsmall) {
                 if (sequence[i] > check) {
-                    middle --;
-                }else {
+                    middle--;
+                } else {
                     ifsmall = true;
                 }
-            }else if (sequence[i] > check){
+            } else if (sequence[i] > check) {
                 return false;
             }
         }
-        if (middle == length - 1 || middle == -1){
-            return VerifySquenceOfBST(Arrays.copyOfRange(sequence,0,length));
+        if (middle == length - 1 || middle == -1) {
+            return VerifySquenceOfBST(Arrays.copyOfRange(sequence, 0, length));
         }
-        return VerifySquenceOfBST(Arrays.copyOfRange(sequence,0,middle + 1)) &&
-                VerifySquenceOfBST(Arrays.copyOfRange(sequence,middle + 1,length - middle));
+        return VerifySquenceOfBST(Arrays.copyOfRange(sequence, 0, middle + 1)) &&
+                VerifySquenceOfBST(Arrays.copyOfRange(sequence, middle + 1, length - middle));
     }
 
     // 二叉树中和为某一值的路径
@@ -673,7 +673,129 @@ public class Solution {
      * 叶结点所经过的结点形成一条路径。(注意: 在返回值的list中，
      * 数组长度大的数组靠前)
      */
-    public ArrayList<ArrayList<Integer>> FindPath(TreeNode root,int target) {
+    // 根据题目要求，一定要到叶子结点，否则就不算
+    public ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+    public ArrayList<Integer> list = new ArrayList<>();
+
+    public ArrayList<ArrayList<Integer>> FindPath(TreeNode root, int target) {
+        if (root == null) {
+            return result;
+        }
+        list.add(root.val);
+        target -= root.val;
+        if (target == 0 && root.left == null && root.right == null) {
+            result.add(new ArrayList<>(list));
+        }
+        FindPath(root.left, target);
+        FindPath(root.right, target);
+        list.remove(list.size() - 1);
+        return result;
+    }
+
+
+    //复杂链表的复制
+    /* 输入一个复杂链表（每个节点中有节点值，以及两个指针，
+     * 一个指向下一个节点，另一个特殊指针指向任意一个节点），
+     * 返回结果为复制后复杂链表的head。（注意，输出结果中请
+     * 不要返回参数中的节点引用，否则判题程序会直接返回空）
+     */
+    // 方法一：用Map存已经访问过的结点，每次访问pHead的next时就在map里先找一遍，有就直接用map里面的，没有就重新new，
+    // 加入map中（map的键值对关系为（被复制的结点：复制出来的新结点），本来想用List，后面发现List只能返回是否存在，不方便直接找到该结点）
+    // 方法二：在旧链表中复制新链表，把新旧链表拆开成两个链表，返回新链表
+    public class RandomListNode {
+        int label;
+        RandomListNode next = null;
+        RandomListNode random = null;
+
+        RandomListNode(int label) {
+            this.label = label;
+        }
+    }
+
+    public RandomListNode Clone(RandomListNode pHead) {
+        if (pHead == null)
+            return null;
+//        RandomListNode q = null;
+//        Map<RandomListNode, RandomListNode> map = new HashMap<>();
+//        RandomListNode newHead = new RandomListNode(pHead.label);       //复制的新链表头结点
+//        q = newHead;
+//        map.put(pHead, newHead);
+//        while (pHead != null) {
+//            if (pHead.next != null && map.containsKey(pHead.next))
+//                q.next = map.get(pHead.next);
+//            else {
+//                if (pHead.next != null) {
+//                    RandomListNode temp = new RandomListNode(pHead.next.label);
+//                    map.put(pHead.next, temp);
+//                    q.next = temp;
+//                }
+//            }
+//            if (pHead.random != null && map.containsKey(pHead.random))
+//                q.random = map.get(pHead.random);
+//            else {
+//                if (pHead.random != null) {
+//                    RandomListNode temp = new RandomListNode(pHead.random.label);
+//                    map.put(pHead.random, temp);
+//                    q.random = temp;
+//                }
+//            }
+//            pHead = pHead.next;
+//            q = q.next;
+//        }
+//        return newHead;
+        RandomListNode newHead = pHead;
+        while (newHead != null){
+            RandomListNode newNode = new RandomListNode(newHead.label);
+            newNode.next = newHead.next;
+            newHead.next = newNode;
+            newHead = newNode.next;
+        }
+        newHead = pHead;
+        while (newHead != null){
+            newHead.next.random = newHead.random == null ? null : newHead.random.next;
+            newHead = newHead.next.next;
+        }
+        RandomListNode oldHead = pHead;
+        newHead = oldHead.next;
+        while (oldHead != null){
+            RandomListNode temp = oldHead.next;
+            oldHead.next = temp.next;
+            temp.next = temp.next == null ? null : temp.next.next;
+            oldHead = oldHead.next;
+        }
+        return newHead;
+    }
+
+    //二叉搜索树与双向链表
+    /*输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向*/
+    // 中序遍历存结点，再转换左右指针
+    List<TreeNode> Treelist = new ArrayList<>();
+    public TreeNode Convert(TreeNode pRootOfTree) {
+        if(pRootOfTree == null)
+            return null;
+        orderInMiddle(pRootOfTree);
+        for (int i = 0; i < Treelist.size() - 1; i++) {
+            Treelist.get(i).right = Treelist.get(i + 1);
+            Treelist.get(i + 1).left = Treelist.get(i);
+        }
+        return Treelist.get(0);
+    }
+    public void orderInMiddle(TreeNode root){
+        if (root.left != null)
+            orderInMiddle(root.left);
+        Treelist.add(root);
+        if(root.right != null)
+            orderInMiddle(root.right);
+    }
+
+    //字符串的排列
+    /* 输入一个字符串,按字典序打印出该字符串中字符的所有排列。
+     * 例如输入字符串abc,则打印出由字符a,b,c所能排列出来的所
+     * 有字符串abc,acb,bac,bca,cab和cba。
+     * 输入一个字符串,长度不超过9(可能有字符重复),字符只包括大小写字母。
+     */
+    public ArrayList<String> Permutation(String str) {
+        char[] ch = str.toCharArray();
 
     }
 
