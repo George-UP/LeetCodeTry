@@ -744,20 +744,20 @@ public class Solution {
 //        }
 //        return newHead;
         RandomListNode newHead = pHead;
-        while (newHead != null){
+        while (newHead != null) {
             RandomListNode newNode = new RandomListNode(newHead.label);
             newNode.next = newHead.next;
             newHead.next = newNode;
             newHead = newNode.next;
         }
         newHead = pHead;
-        while (newHead != null){
+        while (newHead != null) {
             newHead.next.random = newHead.random == null ? null : newHead.random.next;
             newHead = newHead.next.next;
         }
         RandomListNode oldHead = pHead;
         newHead = oldHead.next;
-        while (oldHead != null){
+        while (oldHead != null) {
             RandomListNode temp = oldHead.next;
             oldHead.next = temp.next;
             temp.next = temp.next == null ? null : temp.next.next;
@@ -770,8 +770,9 @@ public class Solution {
     /*输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的双向链表。要求不能创建任何新的结点，只能调整树中结点指针的指向*/
     // 中序遍历存结点，再转换左右指针
     List<TreeNode> Treelist = new ArrayList<>();
+
     public TreeNode Convert(TreeNode pRootOfTree) {
-        if(pRootOfTree == null)
+        if (pRootOfTree == null)
             return null;
         orderInMiddle(pRootOfTree);
         for (int i = 0; i < Treelist.size() - 1; i++) {
@@ -780,11 +781,12 @@ public class Solution {
         }
         return Treelist.get(0);
     }
-    public void orderInMiddle(TreeNode root){
+
+    public void orderInMiddle(TreeNode root) {
         if (root.left != null)
             orderInMiddle(root.left);
         Treelist.add(root);
-        if(root.right != null)
+        if (root.right != null)
             orderInMiddle(root.right);
     }
 
@@ -794,8 +796,126 @@ public class Solution {
      * 有字符串abc,acb,bac,bca,cab和cba。
      * 输入一个字符串,长度不超过9(可能有字符重复),字符只包括大小写字母。
      */
+    // 遍历字符串，固定第一个元素，第一个元素可以取a,b,c...全部取到，然后递归求解 ————f(a,b,c) = a f(b,c) + b f(a,c) + c f(a,b)  排序
     public ArrayList<String> Permutation(String str) {
-        char[] ch = str.toCharArray();
+        return PermutationHelp(new StringBuilder(str));
+    }
+
+    public ArrayList<String> PermutationHelp(StringBuilder str) {
+        ArrayList<String> result = new ArrayList<>();
+        List<Character> list = new ArrayList<>();
+        if (str.length() == 1)
+            result.add(str.toString());
+        else {
+            for (int i = 0; i < str.length(); i++) {
+                char temp = str.charAt(i);
+                if (!list.contains(temp)) {
+                    list.add(temp);
+                    str.deleteCharAt(i);
+                    ArrayList<String> newResult = PermutationHelp(str);
+                    for (int j = 0; j < newResult.size(); j++) {
+                        result.add(temp + newResult.get(j));
+                    }
+                    str.insert(i, temp);
+                }
+            }
+        }
+        Collections.sort(result);
+        return result;
+    }
+
+    // 数组中出现次数超过一半的数字
+    /* 数组中有一个数字出现的次数超过数组长度的一半，请找出这个数字。
+     * 例如输入一个长度为9的数组{1,2,3,2,2,2,5,4,2}。由于数字2在数
+     * 组中出现了5次，超过数组长度的一半，因此输出2。如果不存在则输出0。
+     */
+    /* 方法一：借助map计算每个数的个数，遍历map，返回
+     * 方法二：超过数组长度一半，也就是说，该数比其余所有数的个数和大，遍历找出这个数，再遍历数它的个数
+     */
+    public int MoreThanHalfNum_Solution(int[] array) {
+        int num = array.length;
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < num; i++) {
+            if (map.containsKey(array[i])) {
+                int temp = map.get(array[i]);
+                temp++;
+                map.replace(array[i], temp);
+            } else {
+                map.put(array[i], 1);
+            }
+        }
+        int i = 0;
+        for (Integer key : map.keySet()) {
+            if (map.get(key) > num / 2)
+                return key;
+        }
+        return 0;
+//        int temp = array[0];
+//        int count = 1;
+//        for (int i = 1; i < array.length; i++) {
+//            if (temp == array[i])
+//                count++;
+//            else {
+//                count--;
+//                if (count == 0) {
+//                    temp = array[i];
+//                    count = 1;
+//                }
+//            }
+//        }
+//        count = 0;
+//        for (int i = 0; i < num; i++) {
+//            if (array[i] == temp)
+//                count++;
+//        }
+//        if (count > num / 2)
+//            return temp;
+//        return 0;
+    }
+
+    // 最小的K个数
+    /* 输入n个整数，找出其中最小的K个数。例如输入4,5,1,6,2,7,3,8这8个数字，则最小的4个数字是1,2,3,4,。*/
+    // 先对前K个数进行排序，再将后面的数一一与第k个数比较，大的就下一个，小就把第k个数踢掉，插到顺序的位置，最后返回前k个数
+    public ArrayList<Integer> GetLeastNumbers_Solution(int[] input, int k) {
+        ArrayList<Integer> list = new ArrayList<>();
+        if (k > 0 && k < input.length + 1) {
+            for (int i = 1; i < k; i++) {
+                int j = i - 1;
+                int unFindElement = input[i];
+                while (j >= 0 && input[j] > unFindElement) {
+                    input[j + 1] = input[j];
+                    j--;
+                }
+                input[j + 1] = unFindElement;
+            }
+            for (int i = k; i < input.length; i++) {
+                if (input[i] < input[k - 1]) {
+                    int newK = input[i];
+                    int j = k - 1;
+                    while (j >= 0 && input[j] > newK) {
+                        input[j + 1] = input[j];
+                        j--;
+                    }
+                    input[j + 1] = newK;
+                }
+            }
+            for (int i = 0; i < k; i++) {
+                list.add(input[i]);
+            }
+        }
+        return list;
+    }
+
+    //连续子数组的最大和
+    /* HZ偶尔会拿些专业问题来忽悠那些非计算机专业的同学。
+     * 今天测试组开完会后,他又发话了:
+     * 在古老的一维模式识别中,常常需要计算连续子向量的最大和,
+     * 当向量全为正数的时候,问题很好解决。但是,如果向量中包含负数,
+     * 是否应该包含某个负数,并期望旁边的正数会弥补它呢？
+     * 例如:{6,-3,-2,7,-15,1,2,2},连续子向量的最大和为8(从第0个开始,到第3个为止)。
+     * 给一个数组，返回它的最大连续子序列的和，你会不会被他忽悠住？(子向量的长度至少是1)
+     */
+    public int FindGreatestSumOfSubArray(int[] array) {
 
     }
 
