@@ -915,7 +915,419 @@ public class Solution {
      * 例如:{6,-3,-2,7,-15,1,2,2},连续子向量的最大和为8(从第0个开始,到第3个为止)。
      * 给一个数组，返回它的最大连续子序列的和，你会不会被他忽悠住？(子向量的长度至少是1)
      */
+    // 遍历一遍数组，记录每次的Max值和当前总和，如果当前总和小于0则直接等于下一个数组值（基础动态规划）
     public int FindGreatestSumOfSubArray(int[] array) {
+        int max = array[0];
+        int sum = 0;
+        for (int i = 0; i < array.length; i++) {
+            if (sum < 0)
+                sum = array[i];
+            else {
+                sum += array[i];
+            }
+            max = Math.max(max, sum);
+        }
+        return max;
+    }
+
+    // 整数中1出现的次数（从1到n整数中1出现的次数）
+    /* 求出1~13的整数中1出现的次数,并算出100~1300的整数中1出现的次数？
+     * 为此他特别数了一下1~13中包含1的数字有1、10、11、12、13因此共出现6次,
+     * 但是对于后面问题他就没辙了。ACMer希望你们帮帮他,并把问题更加普遍化,
+     * 可以很快的求出任意非负整数区间中1出现的次数（从1 到 n 中1出现的次数）
+     */
+    /* 个人感觉是道数学题：https://www.jianshu.com/p/1a43f78d185f (找了很多篇，这篇最最最为值得看） */
+    public int NumberOf1Between1AndN_Solution(int n) {
+        int count = 0;
+        int base = 1;                           // 当前 位数 进位
+        int round = n;                          // 高位
+        while (round > 0) {                     // 如果 高位 大于0 循环
+            int weight = round % 10;            // 当前 位数 值
+            round = round / 10;                 // 高位 个数
+            count += round * base;              // 当前 位数 1 出现次数 每一轮出现1的个数，个位1次，十位10次，百位出现100次
+            if (weight == 1) {                  // 当前 位数 为1
+                count += (n % base) + 1;
+            } else if (weight > 1) {            // 当前 位数 大于1
+                count += base;
+            }
+            base = base * 10;
+        }
+        return count;
+//        int count=0;
+//        for(int i=1;i<=n;i*=10)
+//        {
+//            //i表示当前分析的是哪一个数位
+//            int a = n/i,b = n%i;
+//            count += (a + 8) / 10 * i + ((a % 10 == 1) ? b + 1 : 0);
+//        }
+//        return count;
+    }
+
+    // 把数组排成最小的数
+    /* 输入一个正整数数组，把数组里所有数字拼接起来排成一个数，
+     * 打印能拼接出的所有数字中最小的一个。例如输入数组{3，32，321}，
+     * 则打印出这三个数字能排成的最小数字为321323。
+     */
+    /* 个人感觉是个排序问题；
+     * 方法：用Collections自带的sort，重写比较函数；
+     * 1️⃣直接用String自带的compareTo比较s1 + s2 与 s2 + s1
+     * 2️⃣逐位数比较 s1 与 s2，短的循环比较长的，完全相等则返回0
+     */
+    public String PrintMinNumber(int[] numbers) {
+        List<String> list = new ArrayList<>();
+        for (int i : numbers) {
+            list.add(String.valueOf(i));
+        }
+        Collections.sort(list, new Comparator<String>() {
+            @Override
+            public int compare(String s, String t1) {
+//                return (s + t1).compareTo(t1 + s);
+                int i = 0, j = 0;
+                while (i < s.length() || j < t1.length()) {
+                    if (j == t1.length())
+                        j -= t1.length();
+                    if (i == s.length())
+                        i -= s.length();
+                    if (s.charAt(i) < t1.charAt(j)) {
+                        return -1;
+                    } else if (s.charAt(i) > t1.charAt(j)) {
+                        return 1;
+                    }
+                    i++;
+                    j++;
+                }
+                return 0;
+            }
+        });
+        StringBuilder result = new StringBuilder();
+        for (String s : list) {
+            result.append(s);
+        }
+        return result.toString();
+
+    }
+
+    // 丑数
+    /* 把只包含质因子2、3和5的数称作丑数（Ugly Number）。
+     * 例如6、8都是丑数，但14不是，因为它包含质因子7。
+     * 习惯上我们把1当做是第一个丑数。求按从小到大的顺序的第N个丑数。
+     */
+    // 方法一：生成（超时）
+    // 方法二：拆分成 2x3y5z
+    public int GetUglyNumber_Solution(int index) {
+        if (index < 7)
+            return index;
+        int[] res = new int[index];
+        res[0] = 1;
+        int pos2 = 0;// 2的对列
+        int pos3 = 0;// 3的对列
+        int pos5 = 0;// 5的对列
+        // 一个丑数*2/3/5还是丑数
+        for (int i = 1; i < index; i++) {
+            res[i] = Math.min(Math.min(res[pos2] * 2, res[pos3] * 3), res[pos5] * 5);
+            if (res[i] == res[pos2] * 2) {
+                pos2++;
+            }
+            if (res[i] == res[pos3] * 3) {
+                pos3++;
+            }
+            if (res[i] == res[pos5] * 5) {
+                pos5++;
+            }
+        }
+        return res[index - 1];
+    }
+
+    /* 在一个字符串(0<=字符串长度<=10000，全部由字母组成)中找到第一个只出现一次的字符,并返回它的位置, 如果没有则返回 -1（需要区分大小写）.*/
+    // 方法一：用Map存已经出现的Char和次数，遍历str返回第一个在map中value为1的i
+    // 方法二：利用Char的ASCII码
+    public int FirstNotRepeatingChar(String str) {
+//        Map<Character,Integer> map = new HashMap<>();
+//        char[] ch = str.toCharArray();
+//        for (int i = 0; i < ch.length; i++) {
+//            if(!map.containsKey(ch[i])){
+//                map.put(ch[i],1);
+//            }else {
+//                int temp = map.get(ch[i]);
+//                temp ++;
+//                map.replace(ch[i],temp);
+//            }
+//        }
+//        if (!map.isEmpty()){
+//            for (int i = 0; i < ch.length; i++) {
+//                if (map.get(ch[i]) == 1)
+//                    return i;
+//            }
+//        }
+//        return -1;
+        if (str != null) {
+            int[] count = new int[256];
+            for (int i = 0; i < str.length(); i++)
+                count[str.charAt(i)]++;
+            for (int i = 0; i < str.length(); i++)
+                if (count[str.charAt(i)] == 1)
+                    return i;
+        }
+        return -1;
+    }
+
+    /* 在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。
+     * 输入一个数组,求出这个数组中的逆序对的总数P。并将P对1000000007取模的结果输出。 即输出P%1000000007
+     * 对于%50的数据,size<=10^4
+     * 对于%75的数据,size<=10^5
+     * 对于%100的数据,size<=2*10^5
+     */
+    // 方法一：暴力遍历，时间复杂度为O(n ^ 2) 超时
+    // 方法二：归并排序，时间复杂度为O(log n)
+    private int count;
+
+    public int InversePairs(int[] array) {
+        mergeSort(array, 0, array.length - 1);
+        return count;
+    }
+
+    public void merge(int[] array, int low, int mid, int high) {
+        int[] temp = new int[high - low + 1];
+        int i = low;
+        int j = mid + 1;
+        int k = 0;
+        // 把较小的数先移到新数组中
+        while (i <= mid && j <= high) {
+            if (array[i] <= array[j]) {
+                temp[k++] = array[i++];
+            } else {
+                temp[k++] = array[j++];
+                count = (count + mid - i + 1) % 1000000007;
+            }
+        }
+        while (i <= mid) {
+            temp[k++] = array[i++];
+        }
+        while (j <= high) {
+            temp[k++] = array[j++];
+        }
+        for (int l = 0; l < k; l++) {
+            array[low + l] = temp[l];
+        }
+    }
+
+    public void mergeSort(int[] array, int low, int high) {
+        if (low >= high)
+            return;
+        int mid = (low + high) / 2;
+        mergeSort(array, low, mid);             // 左边
+        mergeSort(array, mid + 1, high);   // 右边
+        merge(array, low, mid, high);           // 左右归并
+    }
+
+    // 两个链表的第一个公共结点
+    /* 输入两个链表，找出它们的第一个公共结点。*/
+    // 循环遍历：pHead1----1，2，3，6，7  pHead2----4，5，6，7   ==> 公共结点 6，7 ，也就是说，变相的将两个链表变成长度相等，同时遍历递进即可
+    public ListNode FindFirstCommonNode(ListNode pHead1, ListNode pHead2) {
+        if (pHead1 == null || pHead2 == null)
+            return null;
+        ListNode p = pHead1;
+        ListNode q = pHead2;
+        while (p != q) {
+            p = p.next;
+            q = q.next;
+            if (p == null) p = pHead2;
+            if (q == null) q = pHead1;
+        }
+        return p;
+    }
+
+    // 数字在排序数组中出现的次数
+    /* 统计一个数字在排序数组中出现的次数*/
+    // 方法一：直接遍历：两头同时遍历，相遇则停止
+    // 方法二：先找最后一个k，再找第一个k，返回 j - i
+    // 找k的时候可以用二分法找，时间复杂度为 O(log n)
+    public int GetNumberOfK(int[] array, int k) {
+//        int count = 0;
+//        int i = 0, j = array.length - 1;
+//        System.out.println(Arrays.binarySearch(array,k));
+//        if(j % 2 == 0){
+//            if(array[(j + 1)/2] == k)
+//                count ++;
+//        }
+//        while (i < j) {
+//            if (array[i] == k)
+//                count++;
+//            if (array[j] == k)
+//                count++;
+//            i++;
+//            j--;
+//        }
+//        return count;
+        int i = 0, j = array.length - 1;
+        while (j >= i) {
+            if (array[j] == k)
+                break;
+            j--;
+        }
+        if (j == -1)
+            return 0;
+        while (i < j) {
+            if (array[i] == k)
+                break;
+            i++;
+        }
+        return j - i + 1;
+    }
+
+    // 二叉树的深度
+    /* 输入一棵二叉树，求该树的深度。
+     * 从根结点到叶结点依次经过的结点（含根、叶结点）形成树的一条路径，最长路径的长度为树的深度*/
+    // 递归即可
+    public int TreeDepth(TreeNode root) {
+        int depth = 0;
+        if (root != null) {
+            depth++;
+            int left = TreeDepth(root.left);
+            int right = TreeDepth(root.right);
+            depth += Math.max(left, right);
+            //方法二添加
+            if (Math.abs(left - right) > 1) {
+                isBalanced = false;
+            } else
+                isBalanced = true;
+        }
+        return depth;
+    }
+
+    // 平衡二叉树(左右子树高度差不超过1)
+    /* 输入一棵二叉树，判断该二叉树是否是平衡二叉树。*/
+    // 方法一：直接遍历每个节点
+    // 方法二：后序遍历(在找子树高度的同时先判断该子树是否为平衡二叉树)
+    boolean isBalanced = false;
+
+    public boolean IsBalanced_Solution(TreeNode root) {
+        if (root == null)
+            return true;
+//        if( Math.abs(TreeDepth(root.left) - TreeDepth(root.right)) <= 1 ) {
+//            return (IsBalanced_Solution(root.left) && IsBalanced_Solution(root.right));
+//        } else {
+//            return false;
+//        }
+        TreeDepth(root);
+        return isBalanced;
+    }
+
+    // 数组中只出现一次的数字
+    /* 一个整型数组里除了两个数字之外，其他的数字都出现了两次。
+     * 请写程序找出这两个只出现一次的数字
+     * num1,num2分别为长度为1的数组。传出参数
+     * 将num1[0],num2[0]设置为返回结果
+     */
+    // 方法一：利用Map把重复的删除，最后留下的两个即答案
+    // 方法二：遍历异或找出两个不同数的异或，移位与 (&) 找出最小的那一位1，以此为界分为两个子数组各自异或即可
+    public void FindNumsAppearOnce(int[] array, int num1[], int num2[]) {
+//        List<Integer> numList = new ArrayList<>();
+//        Map<Integer,Integer> map = new HashMap<>();
+//        for (int i = 0; i < array.length; i++) {
+//            if(map.containsKey(array[i])){
+//                map.remove(array[i],array[i]);
+//            }else {
+//                map.put(array[i],array[i]);
+//            }
+//        }
+//        for(int item:map.values())
+//            numList.add(item);
+//        num1[0] = numList.get(0);
+//        num2[0] = numList.get(1);
+        int temp = 0;
+        for (int i = 0; i < array.length; i++) {
+            temp ^= array[i];
+        }
+        int findOne = 1;
+        while ((findOne & temp) == 0) {
+            findOne <<= 1;
+        }
+        int result1 = 0, result2 = 0;
+        for (int i = 0; i < array.length; i++) {
+            if ((findOne & array[i]) == 0)
+                result1 ^= array[i];
+            else
+                result2 ^= array[i];
+        }
+        num1[0] = result1;
+        num2[0] = result2;
+    }
+
+    // 和为S的连续正数序列
+    /* 输出所有和为S的连续正数序列。序列内按照从小至大的顺序，序列间按照开始数字从小到大的顺序 */
+    // 方法一：循环找，小于sum就加，大于sum就减掉最前面的，等于sum就清空list从原本list中的第二个开始重新循环
+    public ArrayList<ArrayList<Integer>> FindContinuousSequence(int sum) {
+        ArrayList<ArrayList<Integer>> result = new ArrayList<>();
+        ArrayList<Integer> list = new ArrayList<>();
+        int i = 0, j = 1, num = 0;
+        while (i < j && j < sum) {
+            list.add(j);
+            num += j;
+            while (num > sum) {
+                i++;
+                list.remove(new Integer(i));
+                num -= i;
+            }
+            if (num == sum) {
+                result.add(new ArrayList<>(list));
+                j = list.get(0);
+                i = j;
+                list.clear();
+                num = 0;
+            }
+            j++;
+        }
+        return result;
+    }
+
+    /* 输入一个递增排序的数组和一个数字S，在数组中查找两个数，使得他们的和正好是S，如果有多对数字的和等于S，输出两个数的乘积最小的*/
+    // 方法一：首尾并进夹逼寻找
+    public ArrayList<Integer> FindNumbersWithSum(int[] array, int sum) {
+        int i = 0, j = array.length - 1;
+        ArrayList<Integer> list = new ArrayList<>();
+        while (i < j) {
+            if (array[i] + array[j] < sum)
+                i++;
+            else if (array[i] + array[j] > sum)
+                j--;
+            else {
+                list.add(array[i]);
+                list.add(array[j]);
+                break;
+            }
+        }
+        return list;
+    }
+
+    /* 汇编语言中有一种移位指令叫做循环左移（ROL），现在有个简单的任务，就是用字符串模拟这个指令的运算结果。
+     * 对于一个给定的字符序列S，请你把其循环左移K位后的序列输出。
+     * 例如，字符序列S=”abcXYZdef”,要求输出循环左移3位后的结果，即“XYZdefabc”。
+     * 是不是很简单？OK，搞定它！
+     */
+    // 方法一：借助StringBuilder 的append和deleteCharAt循环实现
+    // 方法二：直接截取拼接
+    public String LeftRotateString(String str, int n) {
+        n = n % str.length();
+        if (n == 0)
+            return str;
+        return str.substring(n) + str.substring(0,n);
+//        StringBuilder result = new StringBuilder(str);
+//        while (n > 0) {
+//            result.append(result.charAt(0));
+//            result.deleteCharAt(0);
+//            n --;
+//        }
+//        result.append(result.substring(0,n));
+//        return result.delete(0,n).toString();
+    }
+
+    /* 牛客最近来了一个新员工Fish，每天早晨总是会拿着一本英文杂志，写些句子在本子上。
+     * 同事Cat对Fish写的内容颇感兴趣，有一天他向Fish借来翻看，但却读不懂它的意思。
+     * 例如，“student. a am I”。后来才意识到，这家伙原来把句子单词的顺序翻转了，正确的句子应该是“I am a student.”。
+     * Cat对一一的翻转这些单词顺序可不在行，你能帮助他么？
+     */
+    public String ReverseSentence(String str) {
 
     }
 
